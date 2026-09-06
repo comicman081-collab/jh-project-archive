@@ -1,0 +1,47 @@
+name: One-shot wire archive access control
+
+on:
+  push:
+    paths:
+      - '.github/workflows/_one_shot_wire_access_control.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Wire unlimited access control
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p=Path('auth-v3.js')
+          s=p.read_text(encoding='utf-8')
+          old="document.addEventListener('click',e=>{if(e.target?.id==='fullBtn')setTimeout(()=>openAuth(auth?.currentUser?'profile':'login'),0);},true);"
+          new="document.addEventListener('click',e=>{if(e.target?.id==='fullBtn' && !window.JH_ACCESS_STATE?.unlimited)setTimeout(()=>openAuth(auth?.currentUser?'profile':'login'),0);},true);"
+          if old not in s:
+              raise SystemExit('auth-v3 fullBtn hook anchor missing')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          old='<script type="module" src="./auth-v3.js?v=20260906a"></script></body></html>'
+          new='<script type="module" src="./auth-v3.js?v=20260906b"></script><script type="module" src="./access-control.js?v=20260906b"></script></body></html>'
+          if old not in s:
+              raise SystemExit('index auth script anchor missing')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          PY
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add auth-v3.js index.html
+          git commit -m 'access: enable unlimited play for full and admin [skip actions]'
+          git push origin HEAD:main
