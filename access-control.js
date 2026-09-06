@@ -3,6 +3,11 @@ import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/
 import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js';
 import { firebaseConfig } from './auth/firebase-config.js';
 
+// Load optional archive categories after the base classic script has created P/render.
+const educationAddon=document.createElement('script');
+educationAddon.src='./education-addon.js?v=20260906c';
+document.head.appendChild(educationAddon);
+
 const $ = s => document.querySelector(s);
 const state = window.JH_ACCESS_STATE = {
   ready:false, loggedIn:false, emailVerified:false, fullAccess:false, admin:false, unlimited:false, uid:null
