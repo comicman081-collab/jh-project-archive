@@ -199,7 +199,7 @@ function bindUI(){
   $('#loginBtn')?.addEventListener('click',()=>openAuth());
   window.JH_openAuth=openAuth;
   window.openAuth=()=>openAuth(auth?.currentUser?'profile':'login');
-  document.addEventListener('click',e=>{if(e.target?.id==='fullBtn')setTimeout(()=>openAuth(auth?.currentUser?'profile':'login'),0);},true);
+  document.addEventListener('click',e=>{if(e.target?.id==='fullBtn' && !window.JH_ACCESS_STATE?.unlimited)setTimeout(()=>openAuth(auth?.currentUser?'profile':'login'),0);},true);
   const footer=document.querySelector('footer'); if(footer&&!document.querySelector('#jhPrivacyFooter')){const a=document.createElement('span');a.id='jhPrivacyFooter';a.innerHTML=' · <a href="./privacy.html" style="color:#8fb4c8">개인정보처리방침</a> · <a href="./terms.html" style="color:#8fb4c8">이용약관/14세 이상</a>';footer.appendChild(a);}
 }
 
