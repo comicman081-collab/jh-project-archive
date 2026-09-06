@@ -25,8 +25,19 @@ function updateButtons(){
   if(preview) preview.textContent=state.unlimited?'▶ PLAY':'▶ 30 SEC PREVIEW';
   if(full) full.textContent=state.admin?'✓ ADMIN UNLIMITED':state.fullAccess?'✓ FULL ACCESS':'🔒 FULL ACCESS';
 }
+function externalOnly(x){
+  return !!(x && x.id==='false-summer' && x.url);
+}
+function launchExternal(x){
+  if(!x?.url) return;
+  // itch.io project pages are not reliable cross-origin iframe targets.
+  // Open the supported public project page directly instead of leaving a blank player.
+  const opened=window.open(x.url,'_blank','noopener,noreferrer');
+  if(!opened) window.location.href=x.url;
+}
 function launchUnlimited(x){
   if(!x) return;
+  if(externalOnly(x)) return launchExternal(x);
   const player=$('#player'), lock=$('#lock'), frame=$('#frame'), ph=$('#placeholder'), timer=$('#timer'), title=$('#ptitle');
   if(title) title.textContent=x.title||'Project';
   if(player) player.hidden=false;
@@ -44,6 +55,7 @@ function launchUnlimited(x){
 const originalPreview=window.preview;
 if(typeof originalPreview==='function'){
   window.preview=function(x){
+    if(externalOnly(x)) return launchExternal(x);
     if(state.unlimited) return launchUnlimited(x);
     return originalPreview(x);
   };
