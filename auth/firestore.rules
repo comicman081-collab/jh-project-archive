@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function own(uid) { return signedIn() && request.auth.uid == uid; }
+    function verified() { return signedIn() && request.auth.token.email_verified == true; }
+    function adminPath() { return /databases/$(database)/documents/admins/$(request.auth.uid); }
+    function isAdmin() { return signedIn() && exists(adminPath()) && get(adminPath()).data.active != false; }
+    function codePath(hash) { return /databases/$(database)/documents/access_codes/$(hash); }
+    function validUnlock(hash) {
+      return verified()
+        && hash is string
+        && hash.size() == 64
+        && exists(codePath(hash))
+        && get(codePath(hash)).data.active == true;
+    }
+
+    match /users/{uid} {
+      allow get: if own(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if own(uid)
+        && request.resource.data.username is string
+        && request.resource.data.username.size() >= 3
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.age14Plus == true
+        && request.resource.data.privacyVersion == '2026-09-06'
+        && request.resource.data.role == 'member'
+        && request.resource.data.fullAccess == false
+        && request.resource.data.active == true;
+      allow update: if isAdmin() || (
+        own(uid)
+        && request.resource.data.username == resource.data.username
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.active == resource.data.active
+        && request.resource.data.age14Plus == true
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'displayName','lastLoginAt','updatedAt','fullAccess','unlockCodeHash',
+          'privacyVersion','privacyConsentAt'
+        ])
+        && (
+          request.resource.data.fullAccess == resource.data.fullAccess
+          || (
+            resource.data.fullAccess == false
+            && request.resource.data.fullAccess == true
+            && validUnlock(request.resource.data.unlockCodeHash)
+          )
+        )
+      );
+      allow delete: if own(uid) || isAdmin();
+    }
+
+    match /usernames/{name} {
+      allow get: if signedIn();
+      allow list: if isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && !exists(/databases/$(database)/documents/usernames/$(name));
+      allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow update: if false;
+    }
+
+    match /admins/{uid} {
+      allow get: if own(uid) || isAdmin();
+      allow list, create, update, delete: if isAdmin();
+    }
+
+    match /access_codes/{hash} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
+    match /privacy_requests/{id} {
+      allow create: if verified()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email;
+      allow get: if (signedIn() && resource.data.uid == request.auth.uid) || isAdmin();
+      allow list, update, delete: if isAdmin();
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+}
