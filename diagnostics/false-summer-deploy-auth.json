@@ -1,0 +1,8 @@
+{
+  "BUTLER_API_KEY": false,
+  "ITCH_API_KEY": false,
+  "ITCHIO_API_KEY": false,
+  "ITCH_API_TOKEN": false,
+  "ITCH_GAME_PASSWORD": false,
+  "ITCH_PASSWORD": false
+}
