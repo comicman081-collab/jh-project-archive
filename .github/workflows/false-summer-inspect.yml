@@ -1,0 +1,64 @@
+name: Inspect live False Summer itch build
+
+on:
+  push:
+    paths:
+      - '.github/workflows/false-summer-inspect.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch public itch page and extract build references
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          python3 - <<'PY'
+          import json, re, urllib.request, urllib.parse, pathlib
+          url='https://comicman081.itch.io/false-summer-teen15-test'
+          req=urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0 (GitHub Actions; False Summer deployment inspection)'})
+          with urllib.request.urlopen(req, timeout=30) as r:
+              raw=r.read()
+              final=r.geturl()
+              status=getattr(r,'status',200)
+          text=raw.decode('utf-8','replace')
+          patterns={
+            'iframe_src': r'<iframe[^>]+src=["\']([^"\']+)',
+            'html_embed': r'(https?://[^"\'<> ]*html_embed[^"\'<> ]*)',
+            'upload_refs': r'(?i)(?:upload|embed|iframe)[^\n]{0,160}',
+            'itch_cdn_urls': r'https?://[^"\'<> ]*(?:itch\.zone|itch\.io|amazonaws\.com)[^"\'<> ]*',
+          }
+          out={'requested_url':url,'final_url':final,'http_status':status,'bytes':len(raw)}
+          for k,p in patterns.items():
+              vals=[]
+              for m in re.findall(p,text):
+                  if isinstance(m,tuple): m=''.join(m)
+                  m=m.replace('&amp;','&')
+                  if m.startswith('//'): m='https:'+m
+                  if m not in vals: vals.append(m)
+              out[k]=vals[:100]
+          # Script/data attributes commonly carry the actual HTML5 upload id or iframe URL.
+          attrs=[]
+          for name,val in re.findall(r'([\w:-]*(?:url|src|upload|embed|id)[\w:-]*)=["\']([^"\']+)["\']', text, re.I):
+              if any(x in name.lower() for x in ('url','src','upload','embed')):
+                  attrs.append({'name':name,'value':val.replace('&amp;','&')})
+          out['interesting_attrs']=attrs[:200]
+          pathlib.Path('diagnostics/false-summer-itch-inspect.json').write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding='utf-8')
+          pathlib.Path('diagnostics/false-summer-itch-page.html').write_text(text,encoding='utf-8')
+          PY
+      - name: Commit inspection output
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add diagnostics/false-summer-itch-inspect.json diagnostics/false-summer-itch-page.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'chore: capture False Summer itch build metadata [skip actions]'
+          git push
