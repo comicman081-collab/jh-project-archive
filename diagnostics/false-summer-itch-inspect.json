@@ -1,0 +1,78 @@
+{
+  "requested_url": "https://comicman081.itch.io/false-summer-teen15-test",
+  "final_url": "https://comicman081.itch.io/false-summer-teen15-test",
+  "http_status": 200,
+  "bytes": 7884,
+  "iframe_src": [],
+  "html_embed": [],
+  "upload_refs": [
+    "upload\"></span>Upload Game</a><a href=\"https://itch.io/devlogs\" data-label=\"devlogs\" class=\"header_button devlogs_btn\">Developer Logs</a><a href=\"https://itch.io/comm"
+  ],
+  "itch_cdn_urls": [
+    "https://static.itch.io/main.css?1788741661",
+    "https://static.itch.io/translations",
+    "https://static.itch.io/lib.min.js?1788741661",
+    "https://static.itch.io/bundle.min.js?1788741661",
+    "https://static.itch.io/react.min.js?1788741661",
+    "https://static.itch.io/intern.min.js?1788741661",
+    "https://itch.io/",
+    "https://static.itch.io/images/logo-black-new.svg",
+    "https://static.itch.io/images/itchio-textless-black.svg",
+    "https://itch.io/games",
+    "https://itch.io/jams",
+    "https://itch.io/developers",
+    "https://itch.io/devlogs",
+    "https://itch.io/community",
+    "https://itch.io/search",
+    "https://itch.io/login",
+    "https://itch.io/register",
+    "https://itch.io/games/store",
+    "https://itch.io/games/free",
+    "https://itch.io/games/fun",
+    "https://itch.io/games/tag-horror",
+    "https://itch.io/tools",
+    "https://itch.io/game-assets",
+    "https://itch.io/comics",
+    "https://itch.io/sales",
+    "https://itch.io/bundles",
+    "https://itch.io/jobs",
+    "https://itch.io/tags",
+    "https://itch.io/game-development/engines",
+    "https://comicman081.itch.io/false-summer-teen15-test/password",
+    "https://comicman081.itch.io/false-summer-teen15-test",
+    "https://itch.io/docs/general/about",
+    "https://itch.io/docs/general/faq",
+    "https://itch.io/blog",
+    "https://itch.io/support",
+    "https://itch.io/directory",
+    "https://itch.io/docs/legal/terms",
+    "https://itch.io/docs/legal/privacy-policy",
+    "https://itch.io/docs/legal/cookie-policy"
+  ],
+  "interesting_attrs": [
+    {
+      "name": "src",
+      "value": "https://static.itch.io/lib.min.js?1788741661"
+    },
+    {
+      "name": "src",
+      "value": "https://static.itch.io/bundle.min.js?1788741661"
+    },
+    {
+      "name": "data-src",
+      "value": "https://static.itch.io/react.min.js?1788741661"
+    },
+    {
+      "name": "src",
+      "value": "https://static.itch.io/intern.min.js?1788741661"
+    },
+    {
+      "name": "src",
+      "value": "https://static.itch.io/images/logo-black-new.svg"
+    },
+    {
+      "name": "src",
+      "value": "https://static.itch.io/images/itchio-textless-black.svg"
+    }
+  ]
+}
